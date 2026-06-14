@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Speed Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app" style="display: none;">
+        <div class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-gauge-high"></i> Max Speed Panel
+            </div>
+            <ul class="nav">
+                <li class="active" data-page="dashboard"><i class="fa-solid fa-chart-pie"></i> <span data-i18n="dashboard">Dashboard</span></li>
+                <li data-page="create"><i class="fa-solid fa-plus-circle"></i> <span data-i18n="create_zone">Zóna Létrehozása</span></li>
+                <li data-page="manage"><i class="fa-solid fa-list"></i> <span data-i18n="manage_zones">Zónák Kezelése</span></li>
+            </ul>
+            <div class="sidebar-bottom">
+                <div class="lang-switch">
+                    <button class="lang-btn active" data-lang="hu">HU</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                </div>
+                <button id="toggleDebugBtn" class="action-btn outline"><i class="fa-solid fa-eye"></i> <span data-i18n="debug_toggle">Debug Váltás</span></button>
+                <button id="closeBtn" class="action-btn danger"><i class="fa-solid fa-xmark"></i> <span data-i18n="close">Bezárás</span></button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div id="page-dashboard" class="page active">
+                <h2 data-i18n="overview">Áttekintés</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fa-solid fa-globe stat-icon blue"></i>
+                        <div class="stat-info">
+                            <h3 id="statTotal">0</h3>
+                            <p data-i18n="total_zones">Összes Zóna</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-check-circle stat-icon green"></i>
+                        <div class="stat-info">
+                            <h3 id="statActive">0</h3>
+                            <p data-i18n="active_zones">Aktív Zóna</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-bug stat-icon purple"></i>
+                        <div class="stat-info">
+                            <h3 id="statDebug" data-i18n="off">Kikapcsolva</h3>
+                            <p data-i18n="debug_status">Debug Állapot</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="import-export-section">
+                    <h3 data-i18n="import_export">Adatok Importálása / Exportálása</h3>
+                    <textarea id="ioData" placeholder="Itt jelenik meg a kód, vagy ide illeszd be az új kódot..."></textarea>
+                    <div class="io-buttons">
+                        <button id="exportBtn" class="action-btn outline"><i class="fa-solid fa-file-export"></i> <span data-i18n="export">Export</span></button>
+                        <button id="importBtn" class="action-btn success"><i class="fa-solid fa-file-import"></i> <span data-i18n="import">Import</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-create" class="page">
+                <h2 data-i18n="new_zone">Új Zóna Kialakítása</h2>
+                <form id="createZoneForm">
+                    <div class="form-group">
+                        <label data-i18n="zone_name">Zóna Neve</label>
+                        <input type="text" id="zName" placeholder="Pl.: Kórház Előtt" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="speed_limit">Sebesség Korlát (km/h)</label>
+                        <input type="number" id="zSpeed" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="duration">Büntetés Ideje (Másodperc)</label>
+                        <input type="number" id="zDuration" value="2" min="1" max="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="zone_type">Zóna Típusa</label>
+                        <select id="zType">
+                            <option value="sphere" data-i18n="sphere">Gömb (Sphere)</option>
+                            <option value="box" data-i18n="box">Doboz (Box - Utakra)</option>
+                        </select>
+                    </div>
+
+                    <div class="coord-fetcher">
+                        <button type="button" id="fetchCoordsBtn"><i class="fa-solid fa-location-dot"></i> <span data-i18n="fetch_coords">Jelenlegi Helyzetem Betöltése</span></button>
+                        <div class="coord-inputs">
+                            <input type="text" id="zX" placeholder="X" required readonly>
+                            <input type="text" id="zY" placeholder="Y" required readonly>
+                            <input type="text" id="zZ" placeholder="Z" required readonly>
+                            <input type="text" id="zH" placeholder="Heading" required readonly>
+                        </div>
+                    </div>
+
+                    <div id="sphereOptions" class="type-options active">
+                        <div class="form-group">
+                            <label data-i18n="radius">Sugár (Radius)</label>
+                            <input type="number" id="zRadius" value="15.0">
+                        </div>
+                    </div>
+
+                    <div id="boxOptions" class="type-options">
+                        <div class="form-group"><label data-i18n="width">Szélesség</label><input type="number" id="zWidth" value="10.0"></div>
+                        <div class="form-group"><label data-i18n="length">Hosszúság</label><input type="number" id="zLength" value="20.0"></div>
+                        <div class="form-group"><label data-i18n="height">Magasság</label><input type="number" id="zHeight" value="10.0"></div>
+                    </div>
+
+                    <button type="submit" class="action-btn success"><i class="fa-solid fa-save"></i> <span data-i18n="create_btn">Létrehozás</span></button>
+                </form>
+            </div>
+
+            <div id="page-manage" class="page">
+                <h2 data-i18n="zone_manage">Zónák Kezelése</h2>
+                <div class="zones-list" id="zonesList">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="warning-container" style="display: none;">
+        <span class="modern-warning-text" id="warning-text" data-i18n="slow_down">LASSÍTS!</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
